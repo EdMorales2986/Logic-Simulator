@@ -1,26 +1,27 @@
-const express = require('express') // Import of module express
-const app = express() // Express object
-const path = require('path') // Module for universal PATH Setting
-const session = require('express-session')
+const express = require('express')
+const app = express()
+const path = require('path')
 
-// node src/index.js
+const http = require('http')
+const server = http.createServer(app);
+
+const { Server } = require("socket.io");
+const io = new Server(server);
 
 // Settings
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname, 'static')))
 
+//Socket
+const { handler } = require('./socket')
+handler(io)
+
 // Middlewares
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-app.use(session({
-    secret: 'secretkey',
-    resave: false,
-    saveUninitialized: false
-}))
-
 // Routes
 app.use(require('./routes/index.routes.js'))
-app.listen(4000)
+server.listen(4000)
 console.log('http://localhost:4000')

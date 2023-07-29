@@ -1,31 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      href="./static/img/SackboyBanana.ico"
+      type="image/x-icon"
+    />
+    <link rel="stylesheet" href="./static/index.css" />
+    <title>Logic Simulator</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" href="./static/img/SackboyBanana.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="./static/index.css" />
-  <title>Logic Simulator</title>
-</head>
-
-<body>
-  <div id="container">
-    <div id="sidebar">
-      <button id="input">INPUT</button>
-      <button id="output">OUTPUT</button>
-      <button id="not">NOT</button>
-      <button id="and">AND</button>
-      <button id="or">OR</button>
-      <button id="unlink">UNLINK ALL</button>
-      <button id="delete">DELETE ALL</button>
+  <body>
+    <div id="container">
+      <div id="sidebar">
+        <button id="input">INPUT</button>
+        <button id="output">OUTPUT</button>
+        <button id="not">NOT</button>
+        <button id="and">AND</button>
+        <button id="or">OR</button>
+        <button id="unlink">UNLINK ALL</button>
+        <button id="delete">DELETE ALL</button>
+      </div>
+      <div id="canvas-container">
+        <canvas></canvas>
+      </div>
+      <script type="module" src="./static/js/scripts/canvas.js"></script>
+      <script type="module" src="./static/js/scripts/misc.js"></script>
     </div>
-    <div id="canvas-container">
-      <canvas></canvas>
-    </div>
-    <script type="module" src="./static/js/scripts/canvas.js"></script>
-    <script type="module" src="./static/js/scripts/misc.js"></script>
-  </div>
-</body>
-
+  </body>
 </html>
