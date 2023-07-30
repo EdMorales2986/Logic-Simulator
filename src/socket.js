@@ -1,7 +1,8 @@
-let admin = null
+let admin = null;
 
 const handler = (io) => {
     io.on('connection', (socket) => {
+
         if (!admin) {
             admin = socket
             console.log('Admin connected')
@@ -24,6 +25,10 @@ const handler = (io) => {
             } else {
                 console.log('User disconnected')
             }
+        })
+
+        socket.on('step_one', (arr, cnn) => {
+            socket.broadcast.emit('step_two', arr, cnn)
         })
     })
 }

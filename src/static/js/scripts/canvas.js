@@ -3,15 +3,15 @@ import OUTPUT from "../components/OUTPUT.js";
 import NOT from "../components/NOT.js";
 import AND from "../components/AND.js";
 import OR from "../components/OR.js";
-import { ctx, canvas } from "./misc.js"
+import { ctx, canvas } from "./misc.js";
 
 let inputs = [];
 let outputs = [];
 let notGates = [];
 let andGates = [];
 let orGates = [];
-
 let connections = [];
+
 let sending = [];
 let getting = [];
 
@@ -19,61 +19,171 @@ let firstClick = null;
 let secondClick = null;
 let currentRole = null;
 let timeOut = null;
-//let canvasImage = new Image();
+let tempObject = [];
+let tempConnections = [];
 
 const socket = io();
 window.onload = function () {
     socket.emit('first_event');
 }
-
 socket.on('second_event', (newRole) => {
-    currentRole = newRole
+    currentRole = newRole;
     if (currentRole == 'viewer') {
-        document.getElementById('sidebar').style.backgroundColor = 'red'
+        document.querySelectorAll('button').forEach((element) => {
+            element.style.display = 'none';
+        })
     }
 });
 
-//let dataURL = canvas.toDataURL();
+function deletePrev() {
+    while (tempObject.length > 0) {
+        tempObject.pop();
+    }
+    while (tempConnections.length > 0) {
+        tempConnections.pop();
+    }
+}
+function drawTemp(t) {
+    switch (t.id) {
+        case 'input':
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 4;
+            ctx.fillStyle = t.color;
+            ctx.strokeRect(t.x, t.y, t.width, t.height);
+            ctx.fillRect(t.x, t.y, t.width, t.height);
+            ctx.fillStyle = 'white';
+            ctx.strokeRect(t.node.x, t.node.y, t.node.size, t.node.size);
+            ctx.fillRect(t.node.x, t.node.y, t.node.size, t.node.size);
+            ctx.fillStyle = 'white';
+            ctx.font = "20px Arial";
+            ctx.fillText("INPUT", t.x + 18, t.y + 33);
+            break;
+        case 'output':
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 4;
+            ctx.fillStyle = t.color;
+            ctx.strokeRect(t.x, t.y, t.width, t.height);
+            ctx.fillRect(t.x, t.y, t.width, t.height);
+            ctx.fillStyle = 'white';
+            ctx.strokeRect(t.node.x, t.node.y, t.node.size, t.node.size);
+            ctx.fillRect(t.node.x, t.node.y, t.node.size, t.node.size);
+            ctx.fillStyle = 'white';
+            ctx.font = "20px Arial";
+            ctx.fillText("OUTPUT", t.x + 14, t.y + 33);
+            break;
+        case 'not':
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 4;
+            ctx.fillStyle = t.color;
+            ctx.strokeRect(t.x, t.y, t.width, t.height);
+            ctx.fillRect(t.x, t.y, t.width, t.height);
+            ctx.fillStyle = 'white';
+            ctx.strokeRect(t.nodeA.x, t.nodeA.y, t.nodeA.size, t.nodeA.size);
+            ctx.fillRect(t.nodeA.x, t.nodeA.y, t.nodeA.size, t.nodeA.size);
+            ctx.strokeRect(t.nodeB.x, t.nodeB.y, t.nodeB.size, t.nodeB.size);
+            ctx.fillRect(t.nodeB.x, t.nodeB.y, t.nodeB.size, t.nodeB.size);
+            ctx.fillStyle = 'white';
+            ctx.font = "20px Arial";
+            ctx.fillText("NOT", t.x + 30, t.y + 33);
+            break;
+        case 'and':
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 4;
+            ctx.fillStyle = t.color;
+            ctx.strokeRect(t.x, t.y, t.width, t.height);
+            ctx.fillRect(t.x, t.y, t.width, t.height);
+            ctx.fillStyle = 'white';
+            ctx.strokeRect(t.nodeA.x, t.nodeA.y, t.nodeA.size, t.nodeA.size);
+            ctx.fillRect(t.nodeA.x, t.nodeA.y, t.nodeA.size, t.nodeA.size);
+            ctx.strokeRect(t.nodeB.x, t.nodeB.y, t.nodeB.size, t.nodeB.size);
+            ctx.fillRect(t.nodeB.x, t.nodeB.y, t.nodeB.size, t.nodeB.size);
+            ctx.strokeRect(t.nodeC.x, t.nodeC.y, t.nodeC.size, t.nodeC.size);
+            ctx.fillRect(t.nodeC.x, t.nodeC.y, t.nodeC.size, t.nodeC.size);
+            ctx.fillStyle = 'white';
+            ctx.font = "20px Arial";
+            ctx.fillText("AND", t.x + 30, t.y + 46);
+            break;
+        case 'or':
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 4;
+            ctx.fillStyle = t.color;
+            ctx.strokeRect(t.x, t.y, t.width, t.height);
+            ctx.fillRect(t.x, t.y, t.width, t.height);
+            ctx.fillStyle = 'white';
+            ctx.strokeRect(t.nodeA.x, t.nodeA.y, t.nodeA.size, t.nodeA.size);
+            ctx.fillRect(t.nodeA.x, t.nodeA.y, t.nodeA.size, t.nodeA.size);
+            ctx.strokeRect(t.nodeB.x, t.nodeB.y, t.nodeB.size, t.nodeB.size);
+            ctx.fillRect(t.nodeB.x, t.nodeB.y, t.nodeB.size, t.nodeB.size);
+            ctx.strokeRect(t.nodeC.x, t.nodeC.y, t.nodeC.size, t.nodeC.size);
+            ctx.fillRect(t.nodeC.x, t.nodeC.y, t.nodeC.size, t.nodeC.size);
+            ctx.fillStyle = 'white';
+            ctx.font = "20px Arial";
+            ctx.fillText("OR", t.x + 30, t.y + 46);
+            break;
+        default: console.log('bruh');
+            break;
+    }
+}
+function drawTempWire(c) {
+    ctx.beginPath();
+    ctx.lineCap = "round";
+    ctx.moveTo(c.node1.x + 10, c.node1.y + 10);
+    ctx.lineTo(c.node2.x + 10, c.node2.y + 10);
+    ctx.stroke();
+}
 
-function LogicSim() {
-    handlers()
-    connection();
+socket.on('step_two', (arr, cnn) => {
+    deletePrev();
+    if (arr.length > 0) {
+        for (let a of arr) {
+            tempObject.push(a);
+        }
+    }
+    if (cnn.length > 0) {
+        for (let c of cnn) {
+            tempConnections.push(c);
+        }
+    }
+})
+
+function logicSim() {
+    handlers();
     update();
 }
 function handlers() {
     document.getElementById('input').addEventListener('click', (e) => {
         inputs.push(new INPUT(ctx, false));
-        for (let i = 0; i < inputs.length; i++) {
-            sending.push(inputs[i].node);
+        for (let i of inputs) {
+            sending.push(i.node);
         }
     })
     document.getElementById('output').addEventListener('click', (e) => {
         outputs.push(new OUTPUT(ctx));
-        for (let i = 0; i < outputs.length; i++) {
-            getting.push(outputs[i].node);
+        for (let o of outputs) {
+            getting.push(o.node);
         }
     })
     document.getElementById('not').addEventListener('click', (e) => {
         notGates.push(new NOT(ctx));
-        for (let i = 0; i < notGates.length; i++) {
-            getting.push(notGates[i].nodeIN); //izquierda
-            sending.push(notGates[i].nodeOUT); // derecha
+        for (let not of notGates) {
+            getting.push(not.nodeA);
+            sending.push(not.nodeB);
         }
     })
     document.getElementById('and').addEventListener('click', (e) => {
         andGates.push(new AND(ctx));
-        for (let i = 0; i < andGates.length; i++) {
-            getting.push(andGates[i].nodeIN1);
-            getting.push(andGates[i].nodeIN2);
-            sending.push(andGates[i].nodeOUT);
+        for (let and of andGates) {
+            getting.push(and.nodeA);
+            getting.push(and.nodeB);
+            sending.push(and.nodeC);
         }
     })
     document.getElementById('or').addEventListener('click', (e) => {
         orGates.push(new OR(ctx));
-        for (let i = 0; i < orGates.length; i++) {
-            getting.push(orGates[i].nodeIN1);
-            getting.push(orGates[i].nodeIN2);
-            sending.push(orGates[i].nodeOUT);
+        for (let or of orGates) {
+            getting.push(or.nodeA);
+            getting.push(or.nodeB);
+            sending.push(or.nodeC);
         }
     })
     document.getElementById('delete').addEventListener('click', (e) => {
@@ -114,9 +224,6 @@ function handlers() {
         while (connections.length > 0) {
             connections.pop();
         }
-    })
-    document.getElementById('test').addEventListener('click', (e) => {
-        console.log(currentRole);
     })
 }
 function drawAll() {
@@ -159,7 +266,7 @@ function drawWire() {
     for (let cnn of connections) {
         for (let S of sending) {
             for (let G of getting) {
-                if (cnn.node1 == S.id && cnn.node2 == G.id) {
+                if (cnn.node1.id == S.id && cnn.node2.id == G.id) {
                     ctx.beginPath();
                     ctx.lineCap = "round";
                     ctx.moveTo(S.x + 10, S.y + 10);
@@ -180,7 +287,6 @@ function collisions() {
                 first.y < second.y + second.size &&
                 first.y + first.size > second.y) {
                 second.setValue(first.value);
-                second.parent.setValue(first.value);
             }
         }
     }
@@ -199,7 +305,7 @@ function collisions() {
             }
         }
         if (!foundInter) {
-            first.parent.resetValue();
+            first.resetValue();
         }
     }
 }
@@ -210,9 +316,8 @@ function connection() {
 
         if (firstClick === null && event.ctrlKey) {
             for (let S of sending) {
-                if (event.ctrlKey & S.IMIBNODE(mouseX, mouseY)) {
+                if (event.ctrlKey & S.IMIB(mouseX, mouseY)) {
                     firstClick = S;
-                    console.log(S.id);
                     break;
                 }
             }
@@ -224,16 +329,16 @@ function connection() {
         } else if (secondClick === null && event.ctrlKey) {
             try {
                 for (let G of getting) {
-                    if (event.ctrlKey && G.IMIBNODE(mouseX, mouseY) && G.isLinked == false) {
+                    if (event.ctrlKey && G.IMIB(mouseX, mouseY) && G.isLinked == false) {
                         clearTimeout(timeOut);
                         secondClick = G;
-                        console.log(G.id);
                         break;
                     }
                 }
+
                 firstClick.setLink(secondClick);
                 secondClick.setLink(firstClick);
-                connections.push({ node1: firstClick.id, node2: secondClick.id });
+                connections.push({ node1: firstClick, node2: secondClick });
                 console.log(`linked ${firstClick.id} with ${secondClick.id}`);
 
                 firstClick = null;
@@ -248,9 +353,8 @@ function ensureConnection() {
     for (let cnn of connections) {
         for (let S of sending) {
             for (let G of getting) {
-                if (cnn.node1 == S.id && cnn.node2 == G.id) {
+                if (cnn.node1.id == S.id && cnn.node2.id == G.id) {
                     G.setValue(S.value);
-                    G.parent.setValue(S.value);
                 }
             }
         }
@@ -259,13 +363,27 @@ function ensureConnection() {
 }
 function update() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    drawGrid();
-    drawAll();
-    collisions();
-    ensureConnection();
+    if (currentRole == 'admin') {
+        const combinedArray = inputs.concat(outputs, notGates, andGates, orGates);
+        socket.emit('step_one', combinedArray, connections);
+        drawGrid();
+        drawAll();
+        collisions();
+        ensureConnection();
+    }
+    else {
+        if (tempObject.length) {
+            for (let t of tempObject) {
+                drawTemp(t);
+            }
+            for (let c of tempConnections) {
+                drawTempWire(c);
+            }
+        }
+    }
 
     requestAnimationFrame(update);
 }
 
-LogicSim();
+connection();
+logicSim();

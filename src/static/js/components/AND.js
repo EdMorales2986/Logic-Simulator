@@ -1,5 +1,3 @@
-import NODE from "./NODE.js";
-
 export default class AND {
     constructor(ctx) {
         this.ctx = ctx;
@@ -11,9 +9,64 @@ export default class AND {
         this.dragging = false;
         this.offsetX = 0;
         this.offsetY = 0;
-        this.nodeIN1 = new NODE(ctx, this.x - 11, this.y + 9, this);
-        this.nodeIN2 = new NODE(ctx, this.x - 11, this.y + 49, this);
-        this.nodeOUT = new NODE(ctx, this.x + 91, this.y + 29, this);
+        this.nodeA = {
+            id: Date.now().toString(36).substring(3, 8) + '-' + Math.random().toString(36).substring(2, 6),
+            size: 20,
+            value: this.value,
+            setValue: function (value) {
+                this.nodeA.value = value;
+                this.update();
+            }.bind(this),
+            resetValue: function () {
+                this.nodeA.value = false;
+                this.update();
+            }.bind(this),
+            setLink: function () {
+                this.isLinked = true;
+            },
+            IMIB: function (mouseX, mouseY) {
+                return mouseX >= this.x && mouseX <= (this.x + this.size) && mouseY >= this.y && mouseY <= (this.y + this.size);
+            },
+            x: this.x - 11,
+            y: this.y + 9,
+            isLinked: false
+        };
+        this.nodeB = {
+            id: Date.now().toString(36).substring(3, 8) + '-' + Math.random().toString(36).substring(2, 6),
+            size: 20,
+            value: this.value,
+            setValue: function (value) {
+                this.nodeB.value = value;
+                this.update();
+            }.bind(this),
+            resetValue: function () {
+                this.nodeB.value = false;
+                this.update();
+            }.bind(this),
+            setLink: function () {
+                this.isLinked = true;
+            },
+            IMIB: function (mouseX, mouseY) {
+                return mouseX >= this.x && mouseX <= (this.x + this.size) && mouseY >= this.y && mouseY <= (this.y + this.size);
+            },
+            x: this.x - 11,
+            y: this.y + 49,
+            isLinked: false
+        };
+        this.nodeC = {
+            id: Date.now().toString(36).substring(3, 8) + '-' + Math.random().toString(36).substring(2, 6),
+            size: 20,
+            value: this.value,
+            setLink: function () {
+                this.isLinked = true;
+            },
+            IMIB: function (mouseX, mouseY) {
+                return mouseX >= this.x && mouseX <= (this.x + this.size) && mouseY >= this.y && mouseY <= (this.y + this.size);
+            },
+            x: this.x + 91,
+            y: this.y + 29,
+            isLinked: false
+        };
         this.value = false;
         this.color = this.value ? 'red' : '#4b4b4b';
 
@@ -31,17 +84,19 @@ export default class AND {
         this.ctx.fillStyle = this.color;
         this.ctx.strokeRect(this.x, this.y, this.width, this.height);
         this.ctx.fillRect(this.x, this.y, this.width, this.height);
+        this.ctx.fillStyle = 'white';
+        this.ctx.strokeRect(this.nodeA.x, this.nodeA.y, this.nodeA.size, this.nodeA.size);
+        this.ctx.fillRect(this.nodeA.x, this.nodeA.y, this.nodeA.size, this.nodeA.size);
+        this.ctx.strokeRect(this.nodeB.x, this.nodeB.y, this.nodeB.size, this.nodeB.size);
+        this.ctx.fillRect(this.nodeB.x, this.nodeB.y, this.nodeB.size, this.nodeB.size);
+        this.ctx.strokeRect(this.nodeC.x, this.nodeC.y, this.nodeC.size, this.nodeC.size);
+        this.ctx.fillRect(this.nodeC.x, this.nodeC.y, this.nodeC.size, this.nodeC.size);
 
         this.ctx.fillStyle = 'white';
         this.ctx.font = "20px Arial";
         this.ctx.fillText("AND", this.x + 30, this.y + 46);
-
-        this.nodeIN1.draw();
-        this.nodeIN2.draw();
-        this.nodeOUT.draw();
     }
 
-    // Conditional Method
     // IMIB (Is Mouse Inside Box)
     IMIBAND(mouseX, mouseY) {
         return mouseX >= this.x && mouseX <= (this.x + this.width) && mouseY >= this.y && mouseY <= (this.y + this.height);
@@ -56,7 +111,6 @@ export default class AND {
             this.dragging = true;
             this.offsetX = mouseX - this.x;
             this.offsetY = mouseY - this.y;
-            //console.log(this);
         }
     }
 
@@ -66,12 +120,12 @@ export default class AND {
             const mouseY = event.clientY - this.ctx.canvas.offsetTop;
             this.x = mouseX - this.offsetX;
             this.y = mouseY - this.offsetY;
-            this.nodeIN1.x = this.x - 11;
-            this.nodeIN1.y = this.y + 9;
-            this.nodeIN2.x = this.x - 11;
-            this.nodeIN2.y = this.y + 49;
-            this.nodeOUT.x = this.x + 91;
-            this.nodeOUT.y = this.y + 29;
+            this.nodeA.x = this.x - 11;
+            this.nodeA.y = this.y + 9;
+            this.nodeB.x = this.x - 11;
+            this.nodeB.y = this.y + 49;
+            this.nodeC.x = this.x + 91;
+            this.nodeC.y = this.y + 29;
             this.draw();
         }
     }
@@ -80,23 +134,15 @@ export default class AND {
         this.dragging = false;
     }
 
-    setValue() {
-        const value1 = this.nodeIN1.getValue();
-        const value2 = this.nodeIN2.getValue();
-        if (value1 == true && value2 == true) {
+    update() {
+        if (this.nodeA.value && this.nodeB.value) {
             this.value = true;
-        } else { this.value = false; }
-        this.color = this.value ? 'red' : '#4b4b4b';
-        this.nodeOUT.setValue(this.value);
-        this.draw();
-    }
-
-    resetValue() {
-        this.value = false;
-        this.color = this.value ? 'red' : '#4b4b4b';
-        this.nodeIN1.setValue(this.value);
-        this.nodeIN2.setValue(this.value);
-        this.nodeOUT.setValue(this.value);
-        this.draw();
+            this.nodeC.value = true;
+            this.color = this.value ? 'red' : '#4b4b4b';
+        } else {
+            this.value = false;
+            this.nodeC.value = false;
+            this.color = this.value ? 'red' : '#4b4b4b';
+        }
     }
 }

@@ -1,5 +1,3 @@
-import NODE from "./NODE.js";
-
 export default class NOT {
     constructor(ctx) {
         this.ctx = ctx;
@@ -11,8 +9,62 @@ export default class NOT {
         this.dragging = false;
         this.offsetX = 0;
         this.offsetY = 0;
-        this.nodeIN = new NODE(ctx, this.x - 11, this.y + 16, this);// izquierda
-        this.nodeOUT = new NODE(ctx, this.x + 91, this.y + 16, this);// derecha
+        this.nodeA = {
+            id: Date.now().toString(36).substring(3, 8) + '-' + Math.random().toString(36).substring(2, 6),
+            size: 20,
+            value: this.value,
+            setValue: function (value) {
+                this.value = !value;
+                this.color = this.value ? 'red' : '#4b4b4b';
+                this.nodeA.value = !this.value;
+                this.nodeB.value = this.value;
+                this.draw();
+            }.bind(this),
+            resetValue: function () {
+                this.value = false;
+                this.color = this.value ? 'red' : '#4b4b4b';
+                this.nodeA.value = this.value;
+                this.nodeB.value = this.value;
+                this.draw();
+            }.bind(this),
+            setLink: function () {
+                this.isLinked = true;
+            },
+            IMIB: function (mouseX, mouseY) {
+                return mouseX >= this.x && mouseX <= (this.x + this.size) && mouseY >= this.y && mouseY <= (this.y + this.size);
+            },
+            x: this.x + 91,
+            y: this.y + 16,
+            isLinked: false
+        };// izquierda
+        this.nodeB = {
+            id: Date.now().toString(36).substring(3, 8) + '-' + Math.random().toString(36).substring(2, 6),
+            size: 20,
+            value: this.value,
+            setValue: function (value) {
+                this.value = !value;
+                this.color = this.value ? 'red' : '#4b4b4b';
+                this.nodeA.value = !this.value;
+                this.nodeB.value = this.value;
+                this.draw();
+            }.bind(this),
+            resetValue: function () {
+                this.value = false;
+                this.color = this.value ? 'red' : '#4b4b4b';
+                this.nodeA.value = this.value;
+                this.nodeB.value = this.value;
+                this.draw();
+            }.bind(this),
+            setLink: function () {
+                this.isLinked = true;
+            },
+            IMIB: function (mouseX, mouseY) {
+                return mouseX >= this.x && mouseX <= (this.x + this.size) && mouseY >= this.y && mouseY <= (this.y + this.size);
+            },
+            x: this.x - 11,
+            y: this.y + 16,
+            isLinked: false
+        };// derecha
         this.value = false;
         this.color = this.value ? 'red' : '#4b4b4b';
 
@@ -30,16 +82,17 @@ export default class NOT {
         this.ctx.fillStyle = this.color;
         this.ctx.strokeRect(this.x, this.y, this.width, this.height);
         this.ctx.fillRect(this.x, this.y, this.width, this.height);
+        this.ctx.fillStyle = 'white';
+        this.ctx.strokeRect(this.nodeA.x, this.nodeA.y, this.nodeA.size, this.nodeA.size);
+        this.ctx.fillRect(this.nodeA.x, this.nodeA.y, this.nodeA.size, this.nodeA.size);
+        this.ctx.strokeRect(this.nodeB.x, this.nodeB.y, this.nodeB.size, this.nodeB.size);
+        this.ctx.fillRect(this.nodeB.x, this.nodeB.y, this.nodeB.size, this.nodeB.size);
 
         this.ctx.fillStyle = 'white';
         this.ctx.font = "20px Arial";
         this.ctx.fillText("NOT", this.x + 30, this.y + 33);
-
-        this.nodeIN.draw();
-        this.nodeOUT.draw();
     }
 
-    // Conditional Method
     // IMIB (Is Mouse Inside Box)
     IMIBNOT(mouseX, mouseY) {
         return mouseX >= this.x && mouseX <= (this.x + this.width) && mouseY >= this.y && mouseY <= (this.y + this.height);
@@ -54,7 +107,6 @@ export default class NOT {
             this.dragging = true;
             this.offsetX = mouseX - this.x;
             this.offsetY = mouseY - this.y;
-            //console.log(this);
         }
     }
 
@@ -64,31 +116,15 @@ export default class NOT {
             const mouseY = event.clientY - this.ctx.canvas.offsetTop;
             this.x = mouseX - this.offsetX;
             this.y = mouseY - this.offsetY;
-            this.nodeIN.x = this.x - 11;
-            this.nodeIN.y = this.y + 16;
-            this.nodeOUT.x = this.x + 91;
-            this.nodeOUT.y = this.y + 16;
+            this.nodeA.x = this.x - 11;
+            this.nodeA.y = this.y + 16;
+            this.nodeB.x = this.x + 91;
+            this.nodeB.y = this.y + 16;
             this.draw();
         }
     }
 
     onMouseUp() {
         this.dragging = false;
-    }
-
-    setValue(value) {
-        this.value = value;
-        this.color = !this.value ? 'red' : '#4b4b4b';
-        this.nodeIN.setValue(this.value);
-        this.nodeOUT.setValue(!this.value);
-        this.draw();
-    }
-
-    resetValue() {
-        this.value = false;
-        this.color = this.value ? 'red' : '#4b4b4b';
-        this.nodeIN.setValue(this.value);
-        this.nodeOUT.setValue(this.value);
-        this.draw();
     }
 }
