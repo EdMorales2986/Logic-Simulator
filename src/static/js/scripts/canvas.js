@@ -3,7 +3,14 @@ import OUTPUT from "../components/OUTPUT.js";
 import NOT from "../components/NOT.js";
 import AND from "../components/AND.js";
 import OR from "../components/OR.js";
-import { ctx, canvas } from "./misc.js";
+import { socket } from "./misc.js";
+
+const cc = document.getElementById('canvas-container');
+const canvas = document.querySelector('canvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = cc.clientWidth;
+canvas.height = cc.clientHeight;
 
 let inputs = [];
 let outputs = [];
@@ -22,7 +29,6 @@ let timeOut = null;
 let tempObject = [];
 let tempConnections = [];
 
-const socket = io();
 window.onload = function () {
     socket.emit('first_event');
 }

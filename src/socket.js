@@ -1,7 +1,12 @@
 let admin = null;
+let user;
 
 const handler = (io) => {
     io.on('connection', (socket) => {
+        socket.on('join', (userId) => {
+            user = userId
+            socket.broadcast.emit('user_connect', userId)
+        })
 
         if (!admin) {
             admin = socket
@@ -21,9 +26,9 @@ const handler = (io) => {
         socket.on('disconnect', () => {
             if (socket === admin) {
                 admin = null;
-                console.log('Admin disconnected')
+                socket.broadcast.emit('user_disconnect', user)
             } else {
-                console.log('User disconnected')
+                socket.broadcast.emit('user_disconnect', user)
             }
         })
 

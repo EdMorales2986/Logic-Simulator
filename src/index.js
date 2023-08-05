@@ -25,3 +25,7 @@ app.use(express.urlencoded({ extended: false }))
 app.use(require('./routes/index.routes.js'))
 server.listen(4000)
 console.log('http://localhost:4000')
+
+
+// npm run dev
+// peerjs --port 4001

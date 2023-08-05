@@ -9,6 +9,10 @@
       type="image/x-icon"
     />
     <link rel="stylesheet" href="index.css" />
+    <script
+      src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"
+      defer
+    ></script>
     <title>Logic Simulator</title>
   </head>
 
@@ -26,8 +30,8 @@
       <div id="canvas-container">
         <canvas></canvas>
       </div>
-      <script type="module" src="./js/scripts/misc.js"></script>
       <script src="/socket.io/socket.io.js"></script>
+      <script type="module" src="./js/scripts/misc.js"></script>
       <script type="module" src="./js/scripts/canvas.js"></script>
     </div>
   </body>
